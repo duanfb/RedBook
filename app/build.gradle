@@ -4,9 +4,24 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
 
+    lintOptions {
+        abortOnError false //编译时屏蔽掉lint检查，可以避免由于编译条件太过严格而编译不过的问题：
+        checkReleaseBuilds false
+    }
+
+    dexOptions {
+        javaMaxHeapSize "3g"
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
     defaultConfig {
         applicationId "com.redbook.neo"
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -22,5 +37,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
 }
