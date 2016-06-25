@@ -10,7 +10,6 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.activity.SplashActivity"
-            android:label="引导页"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Splash">
             <intent-filter>

@@ -4,9 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.redbook.neo.ui.widget.XRecyclerView
-        android:id="@+id/rcv_main"
+    <com.redbook.neo.ui.widget.refreshlayout.XRefreshLayout
+        android:id="@+id/refresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <com.redbook.neo.ui.widget.XRecyclerView
+            android:id="@+id/rcv_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.redbook.neo.ui.widget.refreshlayout.XRefreshLayout>
+
 
 </RelativeLayout>
