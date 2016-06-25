@@ -10,16 +10,19 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ListView;
 import android.widget.OverScroller;
+
 import com.redbook.neo.R;
 
 
 /**
  * Created by liaoinstan on 2016/3/11.
  * 该控件原本为GitHub上的SpringView，只是自己觉得名字不好听，换了
+ * see http://blog.csdn.net/liaoinstan/article/details/51023907
  */
 public class XRefreshLayout extends ViewGroup {
 
@@ -144,15 +147,15 @@ public class XRefreshLayout extends ViewGroup {
             }
         }
         //如果是动态设置的头部，则使用动态设置的参数
-        if (headerHander != null) {
+        if (headerHandler != null) {
             //设置下拉最大高度，只有在>0时才生效，否则使用默认值
-            int xh = headerHander.getDragMaxHeight(header);
+            int xh = headerHandler.getDragMaxHeight(header);
             if (xh > 0) MAX_HEADER_PULL_HEIGHT = xh;
             //设置下拉临界高度，只有在>0时才生效，否则默认为header的高度
-            int h = headerHander.getDragLimitHeight(header);
+            int h = headerHandler.getDragLimitHeight(header);
             HEADER_LIMIT_HEIGHT = h > 0 ? h : header.getMeasuredHeight();
             //设置下拉弹动高度，只有在>0时才生效，否则默认和临界高度一致
-            int sh = headerHander.getDragSpringHeight(header);
+            int sh = headerHandler.getDragSpringHeight(header);
             HEADER_SPRING_HEIGHT = sh > 0 ? sh : HEADER_LIMIT_HEIGHT;
         } else {
             //不是动态设置的头部，设置默认值
@@ -160,12 +163,12 @@ public class XRefreshLayout extends ViewGroup {
             HEADER_SPRING_HEIGHT = HEADER_LIMIT_HEIGHT;
         }
         //设置尾部参数，和上面一样
-        if (footerHander != null) {
-            int xh = footerHander.getDragMaxHeight(footer);
+        if (footerHandler != null) {
+            int xh = footerHandler.getDragMaxHeight(footer);
             if (xh > 0) MAX_FOOTER_PULL_HEIGHT = xh;
-            int h = footerHander.getDragLimitHeight(footer);
+            int h = footerHandler.getDragLimitHeight(footer);
             FOOTER_LIMIT_HEIGHT = h > 0 ? h : footer.getMeasuredHeight();
-            int sh = footerHander.getDragSpringHeight(footer);
+            int sh = footerHandler.getDragSpringHeight(footer);
             FOOTER_SPRING_HEIGHT = sh > 0 ? sh : FOOTER_LIMIT_HEIGHT;
         } else {
             if (footer != null) FOOTER_LIMIT_HEIGHT = footer.getMeasuredHeight();
@@ -398,14 +401,14 @@ public class XRefreshLayout extends ViewGroup {
     private void callOnDropAnim() {
         if (type == Type.OVERLAP) {
             if (contentView.getTop() > 0)
-                if (headerHander != null) headerHander.onDropAnim(header, contentView.getTop());
+                if (headerHandler != null) headerHandler.onDropAnim(header, contentView.getTop());
             if (contentView.getTop() < 0)
-                if (footerHander != null) footerHander.onDropAnim(footer, contentView.getTop());
+                if (footerHandler != null) footerHandler.onDropAnim(footer, contentView.getTop());
         } else if (type == Type.FOLLOW) {
             if (getScrollY() < 0)
-                if (headerHander != null) headerHander.onDropAnim(header, -getScrollY());
+                if (headerHandler != null) headerHandler.onDropAnim(header, -getScrollY());
             if (getScrollY() > 0)
-                if (footerHander != null) footerHander.onDropAnim(footer, -getScrollY());
+                if (footerHandler != null) footerHandler.onDropAnim(footer, -getScrollY());
         }
     }
 
@@ -414,10 +417,10 @@ public class XRefreshLayout extends ViewGroup {
     private void callOnPreDrag() {
         if (_firstDrag) {
             if (isTop()) {
-                if (headerHander != null) headerHander.onPreDrag(header);
+                if (headerHandler != null) headerHandler.onPreDrag(header);
                 _firstDrag = false;
             } else if (isBottom()) {
-                if (footerHander != null) footerHander.onPreDrag(footer);
+                if (footerHandler != null) footerHandler.onPreDrag(footer);
                 _firstDrag = false;
             }
         }
@@ -445,13 +448,13 @@ public class XRefreshLayout extends ViewGroup {
             if (!upOrDown) {
                 if ((isTopOverFarm()) && !isCallDown) {
                     isCallDown = true;
-                    if (headerHander != null) headerHander.onLimitDes(header, upOrDown);
+                    if (headerHandler != null) headerHandler.onLimitDes(header, upOrDown);
                     isCallUp = false;
                 }
             } else {
                 if (!isTopOverFarm() && !isCallUp) {
                     isCallUp = true;
-                    if (headerHander != null) headerHander.onLimitDes(header, upOrDown);
+                    if (headerHandler != null) headerHandler.onLimitDes(header, upOrDown);
                     isCallDown = false;
                 }
             }
@@ -459,13 +462,13 @@ public class XRefreshLayout extends ViewGroup {
             if (upOrDown) {
                 if (isBottomOverFarm() && !isCallUp) {
                     isCallUp = true;
-                    if (footerHander != null) footerHander.onLimitDes(footer, upOrDown);
+                    if (footerHandler != null) footerHandler.onLimitDes(footer, upOrDown);
                     isCallDown = false;
                 }
             } else {
                 if (!isBottomOverFarm() && !isCallDown) {
                     isCallDown = true;
-                    if (footerHander != null) footerHander.onLimitDes(footer, upOrDown);
+                    if (footerHandler != null) footerHandler.onLimitDes(footer, upOrDown);
                     isCallUp = false;
                 }
             }
@@ -549,11 +552,11 @@ public class XRefreshLayout extends ViewGroup {
         }
         if (needChangeHeader) {
             needChangeHeader = false;
-            setHeaderIn(_headerHander);
+            setHeaderIn(_headerHandler);
         }
         if (needChangeFooter) {
             needChangeFooter = false;
-            setFooterIn(_footerHander);
+            setFooterIn(_footerHandler);
         }
         //动画完成后检查是否需要切换type，是则切换
         if (needChange) {
@@ -625,12 +628,12 @@ public class XRefreshLayout extends ViewGroup {
     private void callOnFinishAnim() {
         if (callFreshORload != 0) {
             if (callFreshORload == 1) {
-                if (headerHander != null) headerHander.onFinishAnim();
+                if (headerHandler != null) headerHandler.onFinishAnim();
                 if (give == Give.BOTTOM || give == Give.NONE) {
                     listener.onRefresh();
                 }
             } else if (callFreshORload == 2) {
-                if (footerHander != null) footerHander.onFinishAnim();
+                if (footerHandler != null) footerHandler.onFinishAnim();
                 if (give == Give.TOP || give == Give.NONE) {
                     listener.onLoadMore();
                 }
@@ -712,7 +715,7 @@ public class XRefreshLayout extends ViewGroup {
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-                    if (headerHander != null) headerHander.onStartAnim();
+                    if (headerHandler != null) headerHandler.onStartAnim();
                 }
 
                 @Override
@@ -733,9 +736,21 @@ public class XRefreshLayout extends ViewGroup {
             hasCallRefresh = false;
             callFreshORload = 1;
             needResetAnim = true;
-            if (headerHander != null) headerHander.onStartAnim();
-            mScroller.startScroll(0, getScrollY(), 0, -getScrollY() - HEADER_SPRING_HEIGHT, MOVE_TIME);
-            invalidate();
+            if (headerHandler != null) headerHandler.onStartAnim();
+            int headHeight = header.getMeasuredHeight();
+            if (headHeight <= 0) { //header 还没有绘制出来,等其绘制完成再做scroll操作
+                header.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        mScroller.startScroll(0, getScrollY(), 0, -getScrollY() - HEADER_SPRING_HEIGHT, MOVE_TIME);
+                        invalidate();
+                        header.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
+                });
+            } else { //header本身绘制完成，直接操作
+                mScroller.startScroll(0, getScrollY(), 0, -getScrollY() - HEADER_SPRING_HEIGHT, MOVE_TIME);
+                invalidate();
+            }
         }
     }
 
@@ -769,19 +784,19 @@ public class XRefreshLayout extends ViewGroup {
             callFreshORload = 1;
             if (type == Type.OVERLAP) {
                 if (dsY > 200 || HEADER_LIMIT_HEIGHT >= HEADER_SPRING_HEIGHT) {
-                    if (headerHander != null) headerHander.onStartAnim();
+                    if (headerHandler != null) headerHandler.onStartAnim();
                 }
             } else if (type == Type.FOLLOW) {
-                if (headerHander != null) headerHander.onStartAnim();
+                if (headerHandler != null) headerHandler.onStartAnim();
             }
         } else if (isBottom()) {
             callFreshORload = 2;
             if (type == Type.OVERLAP) {
                 if (dsY < -200 || FOOTER_LIMIT_HEIGHT >= FOOTER_SPRING_HEIGHT) {
-                    if (footerHander != null) footerHander.onStartAnim();
+                    if (footerHandler != null) footerHandler.onStartAnim();
                 }
             } else if (type == Type.FOLLOW) {
-                if (footerHander != null) footerHander.onStartAnim();
+                if (footerHandler != null) footerHandler.onStartAnim();
             }
         }
     }
@@ -1055,44 +1070,44 @@ public class XRefreshLayout extends ViewGroup {
 
     private boolean needChangeHeader = false;
     private boolean needChangeFooter = false;
-    private DragHandler _headerHander;
-    private DragHandler _footerHander;
-    private DragHandler headerHander;
-    private DragHandler footerHander;
+    private DragHandler _headerHandler;
+    private DragHandler _footerHandler;
+    private DragHandler headerHandler;
+    private DragHandler footerHandler;
 
     public DragHandler getHeader() {
-        return headerHander;
+        return headerHandler;
     }
 
     public DragHandler getFooter() {
-        return footerHander;
+        return footerHandler;
     }
 
-    public void setHeader(DragHandler headerHander) {
-        if (this.headerHander != null && isTop()) {
+    public void setHeader(DragHandler headerHandler) {
+        if (this.headerHandler != null && isTop()) {
             needChangeHeader = true;
-            _headerHander = headerHander;
+            _headerHandler = headerHandler;
             resetPosition();
         } else {
-            setHeaderIn(headerHander);
+            setHeaderIn(headerHandler);
         }
     }
 
-    private void setHeaderIn(DragHandler headerHander) {
-        this.headerHander = headerHander;
+    private void setHeaderIn(DragHandler headerHandler) {
+        this.headerHandler = headerHandler;
         if (header != null) {
             removeView(this.header);
         }
-        headerHander.getView(inflater, this);
+        headerHandler.getView(inflater, this);
         this.header = getChildAt(getChildCount() - 1);
         contentView.bringToFront(); //把内容放在最前端
         requestLayout();
     }
 
     public void setFooter(DragHandler footerHander) {
-        if (this.footerHander != null && isBottom()) {
+        if (this.footerHandler != null && isBottom()) {
             needChangeFooter = true;
-            _footerHander = footerHander;
+            _footerHandler = footerHander;
             resetPosition();
         } else {
             setFooterIn(footerHander);
@@ -1100,7 +1115,7 @@ public class XRefreshLayout extends ViewGroup {
     }
 
     private void setFooterIn(DragHandler footerHander) {
-        this.footerHander = footerHander;
+        this.footerHandler = footerHander;
         if (footer != null) {
             removeView(footer);
         }
@@ -1113,6 +1128,7 @@ public class XRefreshLayout extends ViewGroup {
     public interface DragHandler {
         /**
          * 创建一个header view
+         *
          * @param inflater
          * @param viewGroup
          * @return

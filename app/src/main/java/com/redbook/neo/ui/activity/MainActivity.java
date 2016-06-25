@@ -55,13 +55,43 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         //设置默认刷新头部
         mRefreshLayout.setHeader(new DefaultHeader(this));
 //        mRefreshLayout.setFooter(new AliFooter(this,false));
 
+        mRefreshLayout.callFresh();
+
         mRecyclerView = (XRecyclerView) findViewById(R.id.rcv_main);
-        mRecyclerView.setAdapter(new MainAdapter(this,mock()));
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setAdapter(new MainAdapter(MainActivity.this,mock()));
+                mRefreshLayout.onFinishFreshAndLoad();
+            }
+        },2000);
+
+//        SwipeRefreshLayout layout = new SwipeRefreshLayout(this);
+//        layout.setRefreshing(true);
+
+
+
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRefreshLayout.callFresh();
+            }
+        },8000);
+    }
+
+
 
     private List<String> mock() {
         List<String> list = new ArrayList<>();
