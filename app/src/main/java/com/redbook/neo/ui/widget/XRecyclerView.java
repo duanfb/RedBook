@@ -59,9 +59,8 @@ public class XRecyclerView extends RecyclerView {
         //设置水平分割线
         this.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL_LIST));
 
-//        LoadingMoreFooter footView = new LoadingMoreFooter(getContext());
-//        footView.setProgressStyle(mLoadingMoreProgressStyle);
-//        mFootView = footView;
+        LoadingMoreFooter footView = new LoadingMoreFooter(getContext());
+        mFootView = footView;
         mFootView.setVisibility(GONE);
     }
 
@@ -96,6 +95,34 @@ public class XRecyclerView extends RecyclerView {
         mDataObserver.onChanged();
     }
 
+    public void setFootView(final View view) {
+        mFootView = view;
+    }
+
+    public void loadMoreComplete() {
+        isLoadingData = false;
+        if (mFootView instanceof LoadingMoreFooter) {
+            ((LoadingMoreFooter) mFootView).setState(LoadingMoreFooter.STATE_COMPLETE);
+        } else {
+            mFootView.setVisibility(View.GONE);
+        }
+    }
+
+    public void setNoMore(boolean noMore) {
+        isLoadingData = false;
+        isNoMore = noMore;
+        if (mFootView instanceof LoadingMoreFooter) {
+            ((LoadingMoreFooter) mFootView).setState(isNoMore ? LoadingMoreFooter.STATE_NOMORE : LoadingMoreFooter.STATE_COMPLETE);
+        } else {
+            mFootView.setVisibility(View.GONE);
+        }
+    }
+
+    public void reset() {
+        setNoMore(false);
+        loadMoreComplete();
+    }
+
     @Override
     public void onScrollStateChanged(int state) {
         super.onScrollStateChanged(state);
@@ -114,12 +141,11 @@ public class XRecyclerView extends RecyclerView {
             if (layoutManager.getChildCount() > 0
                     && lastVisibleItemPosition >= layoutManager.getItemCount() - 1 && layoutManager.getItemCount() > layoutManager.getChildCount() && !isNoMore) {
                 isLoadingData = true;
-                // TODO
-//                if (mFootView instanceof LoadingMoreFooter) {
-//                    ((LoadingMoreFooter) mFootView).setState(LoadingMoreFooter.STATE_LOADING);
-//                } else {
-//                    mFootView.setVisibility(View.VISIBLE);
-//                }
+                if (mFootView instanceof LoadingMoreFooter) {
+                    ((LoadingMoreFooter) mFootView).setState(LoadingMoreFooter.STATE_LOADING);
+                } else {
+                    mFootView.setVisibility(View.VISIBLE);
+                }
                 mLoadingListener.onLoadMore();
             }
         }
@@ -198,10 +224,6 @@ public class XRecyclerView extends RecyclerView {
             }
         }
 
-        public boolean isRefreshHeader(int position) {
-            return position == 0;
-        }
-
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == TYPE_FOOTER) {
@@ -212,7 +234,7 @@ public class XRecyclerView extends RecyclerView {
 
         @Override
         public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-            int adjPosition = position - 1;
+            int adjPosition = position;
             int adapterCount;
             if (adapter != null) {
                 adapterCount = adapter.getItemCount();
@@ -281,7 +303,7 @@ public class XRecyclerView extends RecyclerView {
                 gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                     @Override
                     public int getSpanSize(int position) {
-                        return (isFooter(position) || isRefreshHeader(position))
+                        return isFooter(position)
                                 ? gridManager.getSpanCount() : 1;
                     }
                 });
@@ -300,7 +322,7 @@ public class XRecyclerView extends RecyclerView {
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
             if (lp != null
                     && lp instanceof StaggeredGridLayoutManager.LayoutParams
-                    && isRefreshHeader(holder.getLayoutPosition()) || isFooter(holder.getLayoutPosition())) {
+                    && isFooter(holder.getLayoutPosition())) {
                 StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
                 p.setFullSpan(true);
             }

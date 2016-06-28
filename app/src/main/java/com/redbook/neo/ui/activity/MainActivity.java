@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private XRecyclerView mRecyclerView;
     private XRefreshLayout mRefreshLayout;
 
+    private MainAdapter mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 //下拉刷新
-                Log.d(TAG,"下拉刷新 ");
+                Log.d(TAG, "下拉刷新 ");
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoadMore() {
                 //上拉加载更多
-                Log.d(TAG,"上拉加载更多 ");
+                Log.d(TAG, "上拉加载更多 ");
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -67,14 +69,27 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mRecyclerView.setAdapter(new MainAdapter(MainActivity.this,mock()));
+                mRecyclerView.setAdapter(mAdapter = new MainAdapter(MainActivity.this, mock()));
                 mRefreshLayout.onFinishFreshAndLoad();
             }
-        },2000);
+        }, 2000);
 
 //        SwipeRefreshLayout layout = new SwipeRefreshLayout(this);
 //        layout.setRefreshing(true);
 
+        mRecyclerView.setLoadingListener(new XRecyclerView.LoadingListener() {
+
+            @Override
+            public void onLoadMore() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.add(mock());
+                        mRecyclerView.loadMoreComplete();
+                    }
+                }, 2000);
+            }
+        });
 
 
     }
@@ -88,9 +103,8 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 mRefreshLayout.callFresh();
             }
-        },8000);
+        }, 8000);
     }
-
 
 
     private List<String> mock() {

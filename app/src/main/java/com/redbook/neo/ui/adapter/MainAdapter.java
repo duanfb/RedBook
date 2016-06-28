@@ -19,6 +19,11 @@ public class MainAdapter extends CommonAdapter<String>{
         super(context, data);
     }
 
+    public void add(List<String> list) {
+        mDatas.addAll(list);
+        notifyDataSetChanged();
+    }
+
     @Override
     public void convert(ViewHolder holder, String text) {
         holder.setText(R.id.tv_name,text);
