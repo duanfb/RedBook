@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.redbook.neo.R;
+
 /**
  * @author : neo.duan
  * @date : 	 2016/6/25 0025
@@ -57,7 +59,7 @@ public class XRecyclerView extends RecyclerView {
         // 设置item动画
         this.setItemAnimator(new DefaultItemAnimator());
         //设置水平分割线
-        this.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL_LIST));
+        this.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL_LIST, R.drawable.line_divider_one));
 
         LoadingMoreFooter footView = new LoadingMoreFooter(getContext());
         mFootView = footView;

@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mRecyclerView.setAdapter(mAdapter = new MainAdapter(MainActivity.this, mock()));
+                mRecyclerView.setAdapter(mAdapter = new MainAdapter(MainActivity.this, mock("首次刷新")));
                 mRefreshLayout.onFinishFreshAndLoad();
             }
         }, 2000);
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mAdapter.add(mock());
+                        mAdapter.add(mock("上拉加载更多"));
                         mRecyclerView.loadMoreComplete();
                     }
                 }, 2000);
@@ -97,20 +97,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mRefreshLayout.callFresh();
-            }
-        }, 8000);
     }
 
 
-    private List<String> mock() {
+    private List<String> mock(String tag) {
         List<String> list = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
-            list.add("NEO  " + i);
+            list.add("NEO  " + tag + i);
         }
         return list;
     }
