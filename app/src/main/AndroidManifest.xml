@@ -22,6 +22,10 @@
         <activity
             android:name=".ui.activity.MainActivity"
             android:label="主页"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.AutoViewPagerActivity"
+            android:label="自动滚动ViewPager"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

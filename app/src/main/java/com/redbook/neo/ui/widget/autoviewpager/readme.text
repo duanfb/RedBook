@@ -1,0 +1,84 @@
+see:http://www.trinea.cn/android/auto-scroll-view-pager/
+
+Android自动滚动 轮播循环的ViewPager
+主要介绍如何实现ViewPager自动播放，循环滚动的效果及使用。顺便解决ViewPager嵌套(ViewPager inside ViewPager)影响触摸滑动及ViewPager滑动速度设置问题。
+
+项目已开源Android Auto Scroll ViewPager@Github，欢迎star和fork。
+更多自动滚动轮播的开源项目可见：自动滚动 ViewPager。
+
+示例代码地址见AutoScrollViewPagerDemo，效果图如下：
+android auto scroll viewpager
+1、实现
+没有通过ScheduledExecutorService或Timer定期执行某个任务实现，而是简单的通过handler发送消息去完成一次滚动，在完成一次滚动后发送另外一个delay的滚动消息，如此循环实现。自动滚动部分核心代码如下：
+
+    public void startAutoScroll() {
+        isAutoScroll = true;
+        sendScrollMessage(interval);
+    }
+
+    private void sendScrollMessage(long delayTimeInMills) {
+        /** remove messages before, keeps one message is running at most **/
+        handler.removeMessages(SCROLL_WHAT);
+        handler.sendEmptyMessageDelayed(SCROLL_WHAT, delayTimeInMills);
+    }
+
+	private class MyHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what) {
+                case SCROLL_WHAT:
+                    scrollOnce();
+                    sendScrollMessage(interval);
+                    break;
+            }
+        }
+    }
+
+至于ViewPager嵌套引起子ViewPager无法触摸问题是通过在子ViewPager的onTouchEvent中添加
+Java
+
+1
+getParent().requestDisallowInterceptTouchEvent(true);
+禁止父控件对touch event做intercept解决的。
+
+ViewPager滑动速度的设置是通过反射的方式重新设置ViewPager的Scroller，改变Scroller的startScroll的间隔时间完成的。调用setScrollDurationFactor(double)即可。
+
+2、使用
+(1) 引入公共库
+引入Android Auto Scroll ViewPager@Github作为你项目的library(如何拉取代码及添加公共库)。
+
+(2) 调用
+仅需简单两步：
+a. 布局定义
+Java
+
+1
+2
+3
+4
+<cn.trinea.android.view.autoscrollviewpager.AutoScrollViewPager
+    android:id="@+id/view_pager"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+代替一般的ViewPager定义
+
+b. 启动ViewPager自动滚动
+startAutoScroll() 启动自动滚动
+stopAutoScroll() 停止自动滚动
+
+3、设置
+setInterval(long) 设置自动滚动的间隔时间，单位为毫秒
+setDirection(int) 设置自动滚动的方向，默认向右
+setCycle(boolean) 是否自动循环轮播，默认为true
+setScrollDurationFactor(double) 设置ViewPager滑动动画间隔时间的倍率，达到减慢动画或改变动画速度的效果
+setStopScrollWhenTouch(boolean) 当手指碰到ViewPager时是否停止自动滚动，默认为true
+setSlideBorderMode(int) 滑动到第一个或最后一个Item的处理方式，支持没有任何操作、轮播以及传递到父View三种模式
+setBorderAnimation(boolean) 设置循环滚动时滑动到从边缘滚动到下一个是否需要动画，默认为true
+
+4、其他
+（1） 指示器，圆形或是方形指示器请配合ViewPagerIndicator使用
+（2）无限循环，如果希望在最后一张继续播放第一张而不是退回到第一张，请参考AutoScrollViewPagerSingleDemo.java，注意这个特性不能和 ViewPagerIndicator 使用
+（3）更多自动滚动轮播的开源项目可见：自动滚动 ViewPager

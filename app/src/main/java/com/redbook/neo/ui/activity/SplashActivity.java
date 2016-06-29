@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                IntentManager.getInstance().goMainActivity(SplashActivity.this);
+                IntentManager.getInstance().goAutoViewPagerActivity(SplashActivity.this);
                 finish();
             }
         },2000);

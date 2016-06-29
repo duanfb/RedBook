@@ -3,7 +3,9 @@ package com.redbook.neo.manager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+
 import com.redbook.neo.R;
+import com.redbook.neo.ui.activity.AutoViewPagerActivity;
 import com.redbook.neo.ui.activity.MainActivity;
 
 /**
@@ -58,5 +60,15 @@ public class IntentManager {
         Intent intent = new Intent(context, MainActivity.class);
         startActivity(context, intent);
 //        startActivity(context, new Intent(context, TestActivity.class));
+    }
+
+    /**
+     * 跳转到自动滚动ViewPagerActivity
+     *
+     * @param context
+     */
+    public void goAutoViewPagerActivity(Context context) {
+        Intent intent = new Intent(context, AutoViewPagerActivity.class);
+        startActivity(context, intent);
     }
 }
